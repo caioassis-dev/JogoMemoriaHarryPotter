@@ -10,5 +10,5 @@ Jogo da memória com bruxos do filme Harry Potter com 3 níveis de dificuldade, 
   
 ### Clique na imagem para acessar:
 
-[![Anotação 2022-11-06 131529](https://user-images.githubusercontent.com/61170444/200181909-21dc5135-bd47-4398-99ef-4c4eb0c3c6dc.png)
+[![Anotação 2022-12-20 222729](https://user-images.githubusercontent.com/61170444/208799755-c3e51b47-70b4-40e8-b641-615ddc12d6f8.png)
 ](https://caioassis-dev.github.io/JogoMemoriaHarryPotter/)
