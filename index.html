@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+  <style type="text/css">
+    .cartaParaBaixo img {
+      opacity: 0;
+    }
+  </style>
+  <title>Jogo da Memória</title>
+</head>
+<div id="app">
+  <body style="background-color:rgba(112, 109, 109, 0.589);">
+    <nav class="navbar p-3 navbar-brand d-flex justify-content-between col-12 navbar-expand-lg navbar-light bg-light">
+      <img src="./assets/icon-game.svg" width="30" height="40" class="col-2" alt="logoJogo">
+      <a class="col-8 d-flex justify-content-center" style="font-size: x-large">Jogo da Memória</a>
+      <button class="navbar-toggler " type="button" data-toggle="collapse" data-target="#navbarResponsive"
+        aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon "></span>
+      </button>
+      <div class="collapse navbar-collapse col-2 p-sm-3" id="navbarResponsive">
+        <ul class="navbar-nav mr-auto ">
+          <li class="nav-item active">
+            <select @change="resetCard()" v-model="Dificuldade" class="nav-item" style="height:40px;">
+              <option value="Fácil">Fácil</option>
+              <option value="Médio">Médio</option>
+              <option value="Díficil">Díficil</option>
+            </select>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="d-flex flex-wrap justify-content-center mt-5">
+        <div style="background-color: rgb(233, 161, 68); padding: 3px; margin: 2.5px"
+          v-for="(bruxo, indice) in bruxosDuplicados"
+          :class="cartasParaCima.includes(indice) ? '' : ClasseCartaParaBaixo">
+          <img @click="click(bruxo, indice)" :src="bruxo.image" height="125" width="90" />
+        </div>
+      </div>
+    </div>
+</div>
+</body>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script type="module">
+  Vue.createApp({
+    data() {
+      return {
+        Arraybruxos: [],
+        Dificuldade: 'Fácil',
+        ClasseCartaParaBaixo: 'cartaParaBaixo',
+        cartasParaCima: [],
+        UltimoBruxoClicado: null,
+        UltimoIndiceClicado: null,
+        gameOver: false,
+      };
+    },
+    methods: {
+      get() {
+        fetch("http://hp-api.herokuapp.com/api/characters")
+          .then(function (resposta) {
+            return resposta.json();
+          })
+          .then((Json) => {
+            this.Arraybruxos = Json;
+          });
+      },
+      shuffle(array) {
+        var arraylength = array.length,
+          bruxo,
+          arrayPosition;
+        while (arraylength) {
+          arrayPosition = Math.floor(Math.random() * arraylength--);
+          bruxo = array[arraylength];
+          array[arraylength] = array[arrayPosition];
+          array[arrayPosition] = bruxo;
+        }
+        return array;
+      },
+      click(bruxo, indice) {
+        if (!this.cartasParaCima.includes(indice)) {
+          this.cartasParaCima.push(indice)
+        }
+        if (this.cartasParaCima.length % 2 == 0) {
+          if (bruxo.name == this.UltimoBruxoClicado.name) {
+            if (this.cartasParaCima.length == this.bruxosDuplicados.length) {
+              this.gameOver = true;
+            }
+          } else {
+            setTimeout(() => {
+              this.cartasParaCima = this.cartasParaCima.filter((numeroCarta) => {
+                return numeroCarta != indice && numeroCarta != this.UltimoIndiceClicado
+              })
+            }, 1000)
+          }
+        } else {
+          this.UltimoBruxoClicado = bruxo
+          this.UltimoIndiceClicado = indice
+        }
+      },
+      resetCard(){
+        this.cartasParaCima = [];
+      }
+    },
+    watch: {
+      gameOver(novoCartasParaCima, velhoCartasParaCima) {
+        setTimeout(() => {
+          alert("Você ganhou!!")
+          location.reload()
+        }, 500)
+      }
+    },
+    computed: {
+      bruxosDuplicados() {
+        let dificuldades = {
+          Fácil: 5,
+          Médio: 10,
+          Díficil: 20
+        }
+        let bruxosReduzidos = this.Arraybruxos.slice(0, dificuldades[this.Dificuldade])
+        let duplicados = [...bruxosReduzidos, ...bruxosReduzidos];
+        return this.shuffle(duplicados);
+      },
+    },
+    created() {
+      this.get();
+    },
+  }).mount("#app");
+</script>
+
+</html>
+
+<!-- 
+  V-ON    CLICK DO BOTAO
+  V-BIND  CLASSE QUE MUDA E TORNA O ELEMENTO DINAMICO
+  V-FOR  Imprimir o numero 1 a 60 na tela .... FOR
+  V-IF   Verificar se os numeros está dentro do array .numerosSorteados = [] 
+-->
